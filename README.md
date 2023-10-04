@@ -293,7 +293,9 @@ My personal preference is to use 2 spaces instead of tabs, because some syntax h
 
 From my experience, working with React in mid-sized or big project gets really messy pretty fast.
 
+- IMPORTANT: Don't group your functions in a single file **whose name is too global**, e.g a `request.ts` or `validation.ts` is a bad idea. Use a folder instead in these situations: `/requests/users.ts`, `/validations/auth.ts` where each of those files may contain several functions, like `loginSchema()` or `signupSchema` in the `auth.ts` file. No, a `types` file is probably not enough and may contain too many types of different contexts. Be creative, organized and meaningful
 - [Don't put your types here by Matt Pocock](https://www.youtube.com/watch?v=zu-EgnbmcLY)
+- [Junior vs Senior React Folder Structure - How To Organize React Projects](https://youtu.be/UUga4-z7b6s?si=d4ahpgcavZe1Zjc6&t=581)
 - Zustand stores and React contexts are used for different reasons. Stores are used as shared data across the entire project/feature, while contexts can be provided different data thanks to the Provider component and the value prop. If you are going to use [the compound pattern](https://www.patterns.dev/posts/compound-pattern), you can use React's context and put it directly in the component file itself instead of putting it in a /contexts directory. Don't use stores for that case, only for global state.
 
 Here is a useful file structure for real projects. It can vary according to different libraries usage
@@ -332,7 +334,7 @@ Here is a useful file structure for real projects. It can vary according to diff
   ...               # Other configuration files, test config...
 ```
 
-package.json should have at least these scripts:
+package.json may have at least these scripts:
 
 ```json
 {
@@ -342,6 +344,7 @@ package.json should have at least these scripts:
     "build": "...", // Build the app for production
     "docs": "...", // If using storybook or similar docs technology
     "lint": "...", // Lint the files
+    "tscheck": "...", // Check silently typescript types
     "format": "...", // Format the file
     "test:unit": "...", // Unit tests
     "test:e2e": "..." // End-to-end tests
@@ -415,11 +418,73 @@ Formik rerenders the whole form on every keystroke. react-hook-form will not, th
 
 #### What is cva?
 
-CVA is a wonderful util library that helps you writing easily variants, colors, shapes, and mix them depending on props.
+[CVA](https://cva.style/docs) is a wonderful util library that helps you writing easily variants, colors, shapes, and mix them depending on props.
 
 #### Zod?
 
-Zod is the go-to choice for schema validation. It can be used anywhere: server-side, client-side, in forms or to be sure you have correct ENV variables during **runtime**. This is strongly typed, and can be a bit compared to typescript but during runtime, while having more features like `refine` and other good stuff such as explicit optional values. By default, all the values are required, which is stricter but also better. This is why i went from using `yup` to `zod` now.
+[Zod](https://zod.dev/) is the go-to choice for schema validation. It can be used anywhere: server-side, client-side, in forms or to be sure you have correct ENV variables during **runtime**. This is strongly typed, and can be a bit compared to typescript but during runtime, while having more features like `refine` and other good stuff such as explicit optional values. By default, all the values are required, which is stricter but also better. This is why i went from using `yup` to `zod` now.
+
+Basically, everything that can be modified by the user or an external source should be verified **during runtime**. It shouldn't cost much performance.
+
+You MUST be obsessed with validation.
+
+Use Zod for different scenarios:
+
+- API responses. Validate them, your app is mostly based on those. tRPC mixed with typesafe ORMs/ODMs must be enough since your database schema is linked to your favorite ORM/ODM, thanks to codegen (Prisma) or pure TypeScript (Drizzle, Mongoose, typeORM, Sequelize...), else please verify your API responses from the database to the backend (if you don't use any ORM/ODM), and from the backend to the frontend if your fullstack is not linked. It will also help you showing custom error messages if the verification fails.
+- 3rd-party API responses, in frontend AND in backend (This can lead to unexpected rendering if the API changes its shape)
+- URL query params. Yes in fact, if you have some sort of enum or restricted values, using zod is a very good typesafe runtime solution for this. Anyone can change the URL with an unexpected param. DON'T trust your users. Your app should be smooth to the user. Applies to frontend and backend too
+- localStorage, sessionStorage (...). You can't know if the user will change or not the values stored in his browser.
+- Form data. Use zod for frontend **AND** backend for this for obvious reason. Frontend validation is more likely to give feedback to the user, for example the email shape is wrong and you have to show an error, instead of waiting the server response. It also integrates well with `react-hook-form`
+- Webhooks. Same reason, you can't trust the response schema.
+- .env variables. [There is a package **for NextJS** made by the @t3-oss foundation that makes it very easy to use](https://github.com/t3-oss/t3-env) that i recommend if you are using NextJS, although a simple `env.ts` file at the root of the repo is usually enough. If you want to type your `process.env` properly according to the schema, you can with the utility type `z.infer<typeof envSchema>` and extending [the `ProcessEnv` interface](https://stackoverflow.com/questions/45194598/using-process-env-in-typescript), see my code below
+
+env.ts:
+
+```ts
+import { z } from "zod";
+
+// Force the schema to have uppercase keys and string or a string enum zod constructor for each value
+type EnvObj = Record<
+  Uppercase<string>,
+  z.ZodString | z.ZodEnum<[string, ...string[]]>
+>;
+
+const envSchema = z.object({
+  EPIC: z.string().url(),
+  WOW: z.string().min(3),
+  MAGICS: z.string(),
+  TYPESCRIPT_WIZARD: z.enum(["wizardry", "ts", "next"]),
+} satisfies EnvObj);
+
+export type EnvSchema = z.infer<typeof envSchema>;
+
+const env = envSchema.parse({
+  EPIC: process.env.EPIC,
+  // this "WOW" env will error during runtime: it does not include at least 3 characters according to the schema
+  WOW: "",
+  MAGICS: process.env.MAGICS,
+  TYPESCRIPT_WIZARD: process.env.TYPESCRIPT_WIZARD, // $ExpectType: "wizardry" | "ts" | "next"
+} satisfies EnvSchema);
+
+export default env;
+```
+
+global.d.ts:
+
+```ts
+import type { EnvSchema } from "@/env";
+
+declare global {
+  namespace NodeJS {
+    // Your process.env has now autocomplete according to your zod schema!
+    interface ProcessEnv extends EnvSchema {}
+  }
+}
+
+export {};
+```
+
+- [When to use Zod? Don't use compile-time-only checking!](https://www.youtube.com/watch?v=AeQ3f4zmSMs)
 
 #### Date manipulation: Dayjs is the best tradeoff
 
@@ -434,7 +499,7 @@ In fact, dayjs is very lightweight compared to date-fns, and will be more than e
 
 - good things to do:
   - testing if you don't have anything more to do. Prefer end-to-end testing first, because it will be closer to user actions than unit testing
-  - in react prefer React.ReactNode over string when it's for displaying thing only (number doesn't have the same methods as string so it will error if string is the type). Do this because sometimes you may need a component instead
+  - in react prefer React.ReactNode over string when it's for displaying things only (number doesn't have the same methods as string so it will error if string is the type). Do this because sometimes you may need a component instead
   - props spreading must be done right after the component name / HTML element name (`<Component {...props} yourProps={}></Component>`) so it doesn't overrides your props. Anyway, shouldn't happen if you use `Omit<T>`
   - Use `React.ComponentPropsWithoutRef<"div">` instead of `React.HTMLProps<HTMLDivElement>`. Precise if the targetted element has a ref or not. More explaination in the github link below Sources:
     - https://stackoverflow.com/questions/48198180/what-is-the-difference-between-react-htmlprops-and-react-htmlattributest
@@ -446,6 +511,7 @@ This was inspired by many articles and videos
 
 - [How to write better git commit messages](https://www.freecodecamp.org/news/how-to-write-better-git-commit-messages/)
 - [Naming git branches](https://tilburgsciencehub.com/building-blocks/collaborate-and-share-your-work/use-github/naming-git-branches/)
+- [Git branches name convention](https://dev.to/couchcamote/git-branching-name-convention-cch)
 - [Junior vs Senior React Folder Structure - How To Organize React Projects](https://youtu.be/UUga4-z7b6s?si=d4ahpgcavZe1Zjc6&t=581)
 - [Don't put your types here by Matt Pocock](https://www.youtube.com/watch?v=zu-EgnbmcLY)
 - [Difference between React.HTMLProps and React.HTMLAttributes](https://stackoverflow.com/questions/48198180/what-is-the-difference-between-react-htmlprops-and-react-htmlattributest)
@@ -458,4 +524,9 @@ If you found it useful, don't forget to star it! ⭐
 ## Interesting articles
 
 - [Useful types with type-fest](https://www.xpbytes.com/articles/types-you-should-know-about-typescript/)
+- [Compose your types with hotscript](https://github.com/gvergnaud/hotscript)
 - [Advanced React typescript patterns](https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase/)
+
+## TODO
+
+I should move the different topics into different markdown files, this readme gets longer and longer
