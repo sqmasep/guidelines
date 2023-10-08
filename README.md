@@ -376,10 +376,13 @@ Well, this one is kind of obvious, but basically find what problems you meet, an
 
 Note those examples are my personal favorites. There are plenty of other alternatives, but by experience i can tell those are the most popular and performant libs. See below the reasons of these choices
 
+Note 2: Don't use tailwind with a UI library/framework that uses another styling system like MUI (that has built-in accessibility and uses emotion). If you want to use tailwind, you may want to use a tailwind-based component library as listed in the example, or an unstyled one that provides you built-in accessibility so you don't have to waste extra time on it
+
 ```bash
 
 - Styling: Tailwind
-- Handling variants: cva (class-variance-authority)
+- Accessibility: any UI framework: HeadlessUI, NextUI, shadcnUI... # Most of them have built-in a11y support so you don't have to write it by yourself
+- Handling variants: tailwind-variants # or cva (class-variance-authority)
 - Conditional classes: clsx # or cn
 
 - Animations: framer-motion
@@ -416,7 +419,9 @@ Using Tailwind instead of sass will:
 
 Formik rerenders the whole form on every keystroke. react-hook-form will not, thus it is more performant in rendering process. It has the same good features as well and is faster overall
 
-#### What is cva?
+#### What is tailwind-variants and CVA?
+
+[Tailwind-variants](https://www.tailwind-variants.org/docs/introduction) is highly inspired by CVA (see below) and has extra interesting features, like extending from a base variant, applying variants according to the viewport width and so on
 
 [CVA](https://cva.style/docs) is a wonderful util library that helps you writing easily variants, colors, shapes, and mix them depending on props.
 
