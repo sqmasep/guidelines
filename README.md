@@ -425,15 +425,15 @@ Formik rerenders the whole form on every keystroke. react-hook-form will not, th
 
 [CVA](https://cva.style/docs) is a wonderful util library that helps you writing easily variants, colors, shapes, and mix them depending on props.
 
-#### Zod?
+#### Zod? Valibot?
 
-[Zod](https://zod.dev/) is the go-to choice for schema validation. It can be used anywhere: server-side, client-side, in forms or to be sure you have correct ENV variables during **runtime**. This is strongly typed, and can be a bit compared to typescript but during runtime, while having more features like `refine` and other good stuff such as explicit optional values. By default, all the values are required, which is stricter but also better. This is why i went from using `yup` to `zod` now.
+[Zod](https://zod.dev/) is the go-to choice for schema validation. It can be used anywhere: server-side, client-side, in forms or to be sure you have correct ENV variables during **runtime**. This is strongly typed, and can be a bit compared to typescript but during runtime, while having more features like `refine` and other good stuff such as explicit optional values. By default, all the values are required, which is stricter but also better. This is why i went from using `yup` to `zod` at first. We'll see later that there is a lighter alternative, but its API is built differently.
 
 Basically, everything that can be modified by the user or an external source should be verified **during runtime**. It shouldn't cost much performance.
 
 You MUST be obsessed with validation.
 
-Use Zod for different scenarios:
+Use data validation for different scenarios:
 
 - API responses. Validate them, your app is mostly based on those. tRPC mixed with typesafe ORMs/ODMs must be enough since your database schema is linked to your favorite ORM/ODM, thanks to codegen (Prisma) or pure TypeScript (Drizzle, Mongoose, typeORM, Sequelize...), else please verify your API responses from the database to the backend (if you don't use any ORM/ODM), and from the backend to the frontend if your fullstack is not linked. It will also help you showing custom error messages if the verification fails.
 - 3rd-party API responses, in frontend AND in backend (This can lead to unexpected rendering if the API changes its shape)
@@ -489,7 +489,11 @@ declare global {
 export {};
 ```
 
+Now that you see why validation is important and how to use it in a lot of places, [i'll talk about `Valibot`](https://valibot.dev/). This zod alternative is based on imports, thus it is way lighter. Zod returns objects with methods that you can't treeshake, and the goal of a SSR-based framework like NextJS is to reduce client-side javascript on hydration thanks to RSCs. Valibot is a very interesting library in this case, most of the time for client-side validation (dynamic URL search params & forms for example) you don't need extra complicated features that zod offers, you just need to validate basic shapes, usually. And Valibot is perfect for that. Plus, react-hook-form gives us a resolver for Valibot, which makes it even better. Note: you can still use zod in the server side because the server has already downloaded zod and doesn't need to anymore.
+
 - [When to use Zod? Don't use compile-time-only checking!](https://www.youtube.com/watch?v=AeQ3f4zmSMs)
+- [Valibot documentation](https://valibot.dev/)
+- [Valibot: Functions imports make bundle size much lighter](https://www.builder.io/blog/valibot-bundle-size)
 
 #### Date manipulation: Dayjs is the best tradeoff
 
@@ -519,6 +523,7 @@ This was inspired by many articles and videos
 - [Git branches name convention](https://dev.to/couchcamote/git-branching-name-convention-cch)
 - [Junior vs Senior React Folder Structure - How To Organize React Projects](https://youtu.be/UUga4-z7b6s?si=d4ahpgcavZe1Zjc6&t=581)
 - [Don't put your types here by Matt Pocock](https://www.youtube.com/watch?v=zu-EgnbmcLY)
+- [When to use Zod? Don't use compile-time-only checking!](https://www.youtube.com/watch?v=AeQ3f4zmSMs)
 - [Difference between React.HTMLProps and React.HTMLAttributes](https://stackoverflow.com/questions/48198180/what-is-the-difference-between-react-htmlprops-and-react-htmlattributest)
 - [React.ComponentProps best practices](https://github.com/typescript-cheatsheets/react/blob/main/docs/advanced/patterns_by_usecase.md#componentprops)
 
