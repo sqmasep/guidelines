@@ -145,6 +145,67 @@ This is not necessary to write `<type>` several times when writing a multiline c
 // type it properly
 ```
 
+To force your coworkers to use these structured code comments, there are two extensions that work well
+together, in which you can customize the colors of the comments according to the `<type>` and `[TAG]`.
+
+To include these extensions, you can add into your `.vscode/extensions.json` the following code:
+
+`.vscode/extensions.json`:
+
+```json
+{
+  "recommendations": [
+    "wayou.vscode-todo-highlight",
+    "aaron-bond.better-comments"
+    // ... your other recommendations
+  ]
+}
+```
+
+And then add some settings to it into the `.vscode/settings.json`
+to configure the colors/font styling according to your keywords just like below:
+
+Feel free to customize it for your team.
+
+`.vscode/settings.json`:
+
+```json
+{
+  "better-comments.tags": [
+    { "tag": "TODO", "color": "#00FFF2", "backgroundColor": "#001C1B" },
+    { "tag": "WARN", "color": "#FF8C00", "backgroundColor": "#1C0F00" },
+    { "tag": "FIXME", "color": "#F1411A", "backgroundColor": "#1C0803" },
+    {
+      "tag": "DANGER [SECURITY]",
+      "color": "#e55",
+      "backgroundColor": "#1C0404",
+      "bold": true
+    },
+    { "tag": "DANGER", "color": "#e55", "backgroundColor": "#1C0404" },
+    {
+      "tag": "INFO",
+      "color": "#3498DB",
+      "backgroundColor": "#07131C",
+      "italic": true
+    }
+  ],
+  "todohighlight.isEnable": true,
+  "todohighlight.isCaseSensitive": true,
+  "todohighlight.defaultStyle": {
+    "borderRadius": "4px"
+  },
+  "todohighlight.keywords": [
+    { "text": "[TS]", "color": "#A7D3FF", "backgroundColor": "#25415C" },
+    { "text": "[REFACTOR]", "color": "#e55", "backgroundColor": "#0000" },
+    { "text": "[A11Y]", "color": "#5c5", "backgroundColor": "#0000" }
+  ]
+}
+```
+
+The settings above will produce this render:
+
+![Render of code comments with the extensions mentionned above](/assets/highlighted-code-comments.png)
+
 ## 4. Naming convention
 
 To enforce some naming convention, you can use eslint rules for this. See section #5 below for more information. Here are some examples about it
@@ -304,7 +365,7 @@ Here is a useful file structure for real projects. It can vary according to diff
 /src                # Source directory
   /assets           # Images, fonts, logos, GIFs, videos, SVGs...
   /components       # Global components
-  /data             # Static data
+  /data             # Static data, constants
   /features         #
     /{featureName}  #
       /components   # Components related to {featureName}
