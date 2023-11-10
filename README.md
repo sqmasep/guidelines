@@ -1,5 +1,9 @@
 # Guidelines
 
+⭐ If you find these guidelines useful, please star this repo! ⭐
+
+You can suggest changes by creating an issue or a pull request.
+
 This will recap most of the best practices you could have when doing web development. It will
 be splitted into several parts.
 
@@ -16,6 +20,7 @@ Of course this is just guidelines, be creative if some parts are missing
 9. Internal documentation
 10. Use a team management tool
 11. Use one library that solves a specific problem
+12. .vscode folder
 
 ## 1. Git commit messages format
 
@@ -152,7 +157,7 @@ To include these extensions, you can add into your `.vscode/extensions.json` the
 
 `.vscode/extensions.json`:
 
-```json
+```js
 {
   "recommendations": [
     "wayou.vscode-todo-highlight",
@@ -172,22 +177,27 @@ Feel free to customize it for your team.
 ```json
 {
   "better-comments.tags": [
-    { "tag": "TODO", "color": "#00FFF2", "backgroundColor": "#001C1B" },
+    {
+      "tag": "TODO",
+      "color": "#00FFF2",
+      "backgroundColor": "#001C1B"
+    },
     { "tag": "WARN", "color": "#FF8C00", "backgroundColor": "#1C0F00" },
     { "tag": "FIXME", "color": "#F1411A", "backgroundColor": "#1C0803" },
     {
       "tag": "DANGER [SECURITY]",
       "color": "#e55",
-      "backgroundColor": "#1C0404",
-      "bold": true
+      "bold": true,
+      "backgroundColor": "#1C0404"
     },
     { "tag": "DANGER", "color": "#e55", "backgroundColor": "#1C0404" },
     {
       "tag": "INFO",
       "color": "#3498DB",
-      "backgroundColor": "#07131C",
-      "italic": true
-    }
+      "italic": true,
+      "backgroundColor": "#07131C"
+    },
+    { "tag": "//", "color": "#474747", "strikethrough": true }
   ],
   "todohighlight.isEnable": true,
   "todohighlight.isCaseSensitive": true,
@@ -342,13 +352,32 @@ The stricter the rules are, the better. Why? Errors encourages you to fix it sin
 
 ESLint shouldn't be used for stylistic formatting. Use Prettier instead for that.
 
-[Here you can get my ESLint custom config with typescript or even react](https://www.npmjs.com/package/eslint-config-eskiu), it includes all the naming conventions i quoted above
+[Here you can get my ESLint custom config with typescript or even react](https://www.npmjs.com/package/eslint-config-eskiu), it includes all the naming conventions i quoted above and more
 
 ## 6. File formatting
 
-Please, write a .prettierrc file or something similar. This is a complement to ESLint: it will make code style consistent throughout different people. Tell your team to use a formatter.
+Please, write a `prettier.config.js` file or something similar. This is a complement to ESLint: it will make code style consistent throughout different people. Tell your team to use a formatter.
 
 My personal preference is to use 2 spaces instead of tabs, because some syntax highlighters are making tab width as 8 characters long, which causes excessive indentation and is less readable as a consequence. Spaces are better for this case as well.
+
+Add in your `prettier.config.js` file:
+
+```js
+/** @type {import("prettier").Config} */
+module.exports = {
+  useTabs: false,
+  tabWidth: 2,
+  semi: true,
+  singleQuote: false,
+
+  // You can change the value below but set at least one: `avoid` or `always`
+  arrowParens: "avoid", // i choose `avoid` to reduce useless noise
+
+  // If you're using tailwind / tailwind-variants / clsx / cva
+  plugins: ["prettier-plugin-tailwindcss"],
+  tailwindFunctions: ["tv", "clsx", "cn", "cva", "twMerge"],
+};
+```
 
 ## 7. File structure
 
@@ -362,42 +391,42 @@ From my experience, working with React in mid-sized or big project gets really m
 Here is a useful file structure for real projects. It can vary according to different libraries usage
 
 ```bash
-/src                # Source directory
-  /assets           # Images, fonts, logos, GIFs, videos, SVGs...
-  /components       # Global components
-  /data             # Static data, constants
-  /features         #
-    /{featureName}  #
-      /components   # Components related to {featureName}
-      /hooks        # Custom hooks related to {featureName}
-      /utils        # Utils functions related to {featureName}
-      /stores       # Global stores. Could be named `context`, but if you're using it in the whole app, it may cause performance issue. Name it `stores` if you're using zustand
-  /hooks            # Global custom hooks
-  /layouts          # Global layouts: Footer, Navbar (...)
-  /lib              # Façade pattern, for example you can instanciate axios in a file here, or react-query queryKeys/queryFns
-  /pages            # Pages
-  /stores           # Global stores. Could be named `context`, but if you're using it in the whole app, it may cause performance issue. Name it `stores` if you're using zustand, or whatever name your global state library uses
-  /stories          # If using storybook, internal documentation
-  /utils            # Util functions: date format, price format...
+/src                 # Source directory
+  /assets            # Images, fonts, logos, GIFs, videos, SVGs...
+  /components        # Global components
+  /data              # Static data, constants
+  /features          #
+    /{featureName}   #
+      /components    # Components related to {featureName}
+      /hooks         # Custom hooks related to {featureName}
+      /utils         # Utils functions related to {featureName}
+      /stores        # Global stores. Could be named `context`, but if you're using it in the whole app, it may cause performance issue. Name it `stores` if you're using zustand
+  /hooks             # Global custom hooks
+  /layouts           # Global layouts: Footer, Navbar (...)
+  /lib               # Façade pattern, for example you can instanciate axios in a file here, or react-query queryKeys/queryFns
+  /pages             # Pages
+  /stores            # Global stores. Could be named `context`, but if you're using it in the whole app, it may cause performance issue. Name it `stores` if you're using zustand, or whatever name your global state library uses
+  /stories           # If using storybook, internal documentation
+  /utils             # Util functions: date format, price format...
 
-  .dockerignore     # Docker ignore file
-  .env              # Your env variables
-  .env.example      # Use this as a template so the other people can copy it: it has dummy values .env.example should appear in the git repo
-  eslint.cjs        # ESLint configuration
-  .gitignore        # Git ignore
-  .prettierrc       # Prettier configuration
-  Dockerfile        # Dockerfile
-  global.d.ts       # Global types
-  package.json      # package.json: Scripts, libraries used.
-  README.md         # README: global information about the project, how to run it, where to find documentation, how the team is organized
-  reset.d.ts        # Typescript reset if you are using @total-typescript/ts-reset
-  tsconfig.json     # TS config
-  ...               # Other configuration files, test config...
+  .dockerignore      # Docker ignore file
+  .env               # Your env variables
+  .env.example       # Use this as a template so the other people can copy it: it has dummy values .env.example should appear in the git repo
+  eslint.cjs         # ESLint configuration
+  .gitignore         # Git ignore
+  prettier.config.js # Prettier configuration
+  Dockerfile         # Dockerfile
+  global.d.ts        # Global types
+  package.json       # package.json: Scripts, libraries used.
+  README.md          # README: global information about the project, how to run it, where to find documentation, how the team is organized
+  reset.d.ts         # Typescript reset if you are using @total-typescript/ts-reset
+  tsconfig.json      # TS config
+  ...                # Other configuration files, test config...
 ```
 
 package.json may have at least these scripts:
 
-```json
+```js
 {
   "scripts": {
     "start": "...", // Start the app in production mode
@@ -408,7 +437,12 @@ package.json may have at least these scripts:
     "tscheck": "...", // Check silently typescript types
     "format": "...", // Format the file
     "test:unit": "...", // Unit tests
-    "test:e2e": "..." // End-to-end tests
+    "test:e2e": "...", // End-to-end tests
+
+    // You can also have some scripts for database migrations
+    "db:migrate": "...",
+    "db:studio": "...",
+    "db:push": "...",
   }
 }
 ```
@@ -449,12 +483,12 @@ Note 2: Don't use tailwind with a UI library/framework that uses another styling
 - Animations: framer-motion
 
 - Form handling: react-hook-form
-- Schema validation: zod
+- Schema validation: zod # or valibot
 
 - Global state manager: valtio, xState, zustand
 - Requests: react-query
 
-- Date manipulation: dayjs (or date-fns)
+- Date manipulation: dayjs # or date-fns
 
 - Internal documentation: Storybook
 - ...
@@ -482,9 +516,9 @@ Formik rerenders the whole form on every keystroke. react-hook-form will not, th
 
 #### What is tailwind-variants and CVA?
 
-[Tailwind-variants](https://www.tailwind-variants.org/docs/introduction) is highly inspired by CVA (see below) and has extra interesting features, like extending from a base variant, applying variants according to the viewport width and so on
-
 [CVA](https://cva.style/docs) is a wonderful util library that helps you writing easily variants, colors, shapes, and mix them depending on props.
+
+[Tailwind-variants](https://www.tailwind-variants.org/docs/introduction) is highly inspired by CVA (see above) and has extra interesting features, like extending from a base variant, applying variants according to the viewport width and so on
 
 #### Zod? Valibot?
 
@@ -500,7 +534,7 @@ Use data validation for different scenarios:
 - 3rd-party API responses, in frontend AND in backend (This can lead to unexpected rendering if the API changes its shape)
 - URL query params. Yes in fact, if you have some sort of enum or restricted values, using zod is a very good typesafe runtime solution for this. Anyone can change the URL with an unexpected param. DON'T trust your users. Your app should be smooth to the user. Applies to frontend and backend too
 - localStorage, sessionStorage (...). You can't know if the user will change or not the values stored in his browser.
-- Form data. Use zod for frontend **AND** backend for this for obvious reason. Frontend validation is more likely to give feedback to the user, for example the email shape is wrong and you have to show an error, instead of waiting the server response. It also integrates well with `react-hook-form`
+- Form data. Do data validation for frontend **AND** backend for this for obvious reason. Frontend validation is more likely to give feedback to the user, for example the email shape is wrong and you have to show an error, instead of waiting the server response. It also integrates well with `react-hook-form`
 - Webhooks. Same reason, you can't trust the response schema.
 - .env variables. [There is a package **for NextJS** made by the @t3-oss foundation that makes it very easy to use](https://github.com/t3-oss/t3-env) that i recommend if you are using NextJS, although a simple `env.ts` file at the root of the repo is usually enough. If you want to type your `process.env` properly according to the schema, you can with the utility type `z.infer<typeof envSchema>` and extending [the `ProcessEnv` interface](https://stackoverflow.com/questions/45194598/using-process-env-in-typescript), see my code below
 
@@ -550,7 +584,7 @@ declare global {
 export {};
 ```
 
-Now that you see why validation is important and how to use it in a lot of places, [i'll talk about `Valibot`](https://valibot.dev/). This zod alternative is based on imports, thus it is way lighter. Zod returns objects with methods that you can't treeshake, and the goal of a SSR-based framework like NextJS is to reduce client-side javascript on hydration thanks to RSCs. Valibot is a very interesting library in this case, most of the time for client-side validation (dynamic URL search params & forms for example) you don't need extra complicated features that zod offers, you just need to validate basic shapes, usually. And Valibot is perfect for that. Plus, react-hook-form gives us a resolver for Valibot, which makes it even better. Note: you can still use zod in the server side because the server has already downloaded zod and doesn't need to anymore.
+Now that you see why validation is important and how to use it in a lot of places, [i'll talk about `Valibot`](https://valibot.dev/). This zod alternative is based on imports, thus it is way lighter. Zod returns objects with methods that you can't treeshake, and the goal of a SSR-based framework like NextJS is to reduce client-side javascript on hydration thanks to RSCs. Valibot is a very interesting library in this case, most of the time for client-side validation (dynamic URL search params & forms for example) you don't need extra complicated features that zod offers, you just need to validate basic shapes, usually. And Valibot is perfect for that. Plus, react-hook-form gives us a resolver for Valibot, which makes it even better. Note: you can still use zod in the server side because the server has already downloaded zod and doesn't need to anymore. Note that having Valibot and Zod in the same project will not allow you to share a schema between your frontend and backend, because Valibot is not a zod extension. You can still use zod in the backend and Valibot in the frontend, but you will have to write two different schemas. This is not a big deal, but it's still a thing to consider.
 
 - [When to use Zod? Don't use compile-time-only checking!](https://www.youtube.com/watch?v=AeQ3f4zmSMs)
 - [Valibot documentation](https://valibot.dev/)
@@ -560,12 +594,133 @@ Now that you see why validation is important and how to use it in a lot of place
 
 In fact, dayjs is very lightweight compared to date-fns, and will be more than enough for most projects. Its API is also rich and has useful features, it is typesafe too. Date-fns has even more features, but it seems quite overkill for client-side most of the time
 
+## 12. `.vscode` folder
+
+`.vscode` folder (and .idea equivalent for Jetbrains users), is an underestimated feature of your favorite IDE. In fact, you can
+share settings, snippets, extensions recommendations and more. It is located at the root of your project.
+
+### `.vscode/settings.json`
+
+In order to enforce some rules, you can add some settings to your `settings.json` file. This file is specific to your project. It will override the global settings of your team members. Some settings are essential, like the location of your typescript SDK (version).
+
+I will list useful settings of different extensions to increase consistency in your team. You shouldn't neglect this point,
+it will save you time and energy.
+
+#### Settings for typescript
+
+The story: i was working on a project at my internship when i realized my TS version in VSCode was 5.3-dev, while the
+typescript version in the project was 5.2.2 or something. There are improved things in the 5.3 version, and i was using them.
+Basically, in the 5.3 version, you can remove the `readonly` modifier when doing `... as const satisfies readonly unknown[]`.
+I removed the `readonly` modifier because it's not necessary anymore, but it was causing typescript errors in the project
+for people that were using the 5.2 version. Later, i was looking at tailwind-variants' github and found in their `settings.json`
+that they were setting `typescript.tsdk: "node_modules/typescript/lib"` in it, which would have avoid my
+problem. I was using a different typescript version instead, which was not the same as the project's one.
+
+Also, one of my coworker was changing the import path manually, while it can be done automatically.
+A time-saver option is to update imports automatically when a file is moved, a good example is when you move a component
+to a different folder for some reason. It will update the import path automatically. and you won't have to worry about that
+
+You can now add this to your `.vscode/settings.json` file:
+
+```json
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always"
+}
+```
+
+#### Settings for formatting & linting
+
+You may think formatting on save is just preference, but you are probably wrong. It will enforce your team to format the files
+before pushing them.
+
+What will happen if one member pushes without formatting ? When someone with the formatter on save will pull the code, it will
+reformat the file, and you will potentially have merge conflicts. Format on save is a must-have. And also a fix all lints on save
+
+To enable this recommendation, you can add to your `.vscode/settings.json`:
+
+```json
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true
+}
+```
+
+#### Settings for tailwind / cva / tailwind-variants
+
+If you are using tailwind, you may want to have autocomplete for the classes, even in your favorite variants library like
+tailwind-variants.
+
+Assuming you already have eslint and prettier configs, you can add this to your `.vscode/settings.json`:
+
+```json
+{
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass"],
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+    ["tv\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+  ]
+}
+```
+
+#### Settings for Prisma
+
+When working with Prisma, you will probably need autocomplete for Prisma, and the prisma formatter.
+
+You can add to your `.vscode/settings.json`:
+
+```json
+{
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  }
+}
+```
+
+### `.vscode/extensions.json`
+
+In order to recommend some good extensions for your workflow, you can add some extensions to your `extensions.json` file. This file is specific to your project.
+
+These extensions are the one i consider very good for team members:
+
+```js
+{
+  "recommendations": [
+    // Essentials
+    "dbaeumer.vscode-eslint",        // ESLint
+    "esbenp.prettier-vscode",        // Prettier
+    "aaron-bond.better-comments",    // Better comments
+    "wayou.vscode-todo-highlight",   // Highlight, see section #3
+    "usernamehw.errorlens",          // Error Lens: display the errors to the screen directly
+    "wix.vscode-import-cost",        // Import cost: size of the imported variables
+    "eamodio.gitlens",               // Git history, blame, ...
+    "yoavbls.pretty-ts-errors",      // Better TS errors explanations
+
+    // If using tailwind
+    "tailwindlabs.tailwindcss-intellisense", // Show the classes and colors in the autocomplete
+
+    // Can improve your productivity
+    "formulahendry.auto-close-tag",         // Close HTML tags automatically
+    "formulahendry.auto-rename-tag",        // Rename HTML tags automatically
+    "meganrogge.template-string-converter", // Convert "" to `` when typing ${
+
+    // If using prisma
+    "prisma.prisma", // Prisma LSP (syntax highlighting, autocomplete & autofix)
+  ]
+}
+```
+
 ## IDEAS
 
 - Add A/B testing if needed
 - Telemetry
 - [Conventionnal commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
 - [MUST, MAY, SHOULD...](https://www.ietf.org/rfc/rfc2119.txt)
+- Add `.vscode/snippets.code-snippets` file to share snippets with your team
 
 - good things to do:
   - testing if you don't have anything more to do. Prefer end-to-end testing first, because it will be closer to user actions than unit testing
