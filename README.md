@@ -721,6 +721,7 @@ These extensions are the one i consider very good for team members:
 - [Conventionnal commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
 - [MUST, MAY, SHOULD...](https://www.ietf.org/rfc/rfc2119.txt)
 - Add `.vscode/snippets.code-snippets` file to share snippets with your team
+- For advanced TS wizards, you can check hotscript & type-fest
 
 - good things to do:
   - testing if you don't have anything more to do. Prefer end-to-end testing first, because it will be closer to user actions than unit testing
@@ -755,4 +756,7 @@ If you found it useful, don't forget to star it! ⭐
 
 ## TODO
 
-I should move the different topics into different markdown files, this readme gets longer and longer
+- I should move the different topics into different markdown files, this readme gets longer and longer
+- talk about [husky](https://typicode.github.io/husky/) to run scripts before anyone commits
+- talk about [separation of concerns](https://youtu.be/eMTFzpxR0QQ?si=188gvdCGWPv37PJ7)
+- talk about [SOLID principle with advanced examples](https://youtu.be/t_h_A6RkM7A?si=VDLS3Ts7DLr3UQwi) (i knew about SOLID before, but this video is very good)
